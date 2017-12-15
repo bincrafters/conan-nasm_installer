@@ -22,7 +22,9 @@ class NASMInstallerConan(ConanFile):
         os.rename(extracted_dir, "sources")
 
     def build_vs(self):
-        raise Exception("TODO")
+        with tools.chdir('sources'):
+            vcvars = tools.vcvars_command(self.settings)
+            self.run('%s && nmake /f Mkfiles\\msvc.mak' % vcvars)
 
     def build_configure(self):
         with tools.chdir('sources'):
@@ -42,6 +44,8 @@ class NASMInstallerConan(ConanFile):
 
     def package(self):
         self.copy(pattern="LICENSE", src='sources')
+        if self.settings.compiler == 'Visual Studio':
+            self.copy(pattern='*.exe', src='sources', dst='bin', keep_path=False)
 
     def package_info(self):
         self.env_info.PATH.append(os.path.join(self.package_folder, 'bin'))
