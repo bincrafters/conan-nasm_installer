@@ -3,6 +3,7 @@
 
 from conans import ConanFile, AutoToolsBuildEnvironment, tools
 import os
+import shutil
 
 
 class NASMInstallerConan(ConanFile):
@@ -25,6 +26,9 @@ class NASMInstallerConan(ConanFile):
         with tools.chdir('sources'):
             vcvars = tools.vcvars_command(self.settings)
             self.run('%s && nmake /f Mkfiles\\msvc.mak' % vcvars)
+            # some libraries look for nasmw (e.g. libmp3lame)
+            shutil.copy('nasm.exe', 'nasmw.exe')
+            shutil.copy('ndisasm.exe', 'ndisasmw.exe')
 
     def build_configure(self):
         with tools.chdir('sources'):
