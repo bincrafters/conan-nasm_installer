@@ -24,7 +24,8 @@ class NASMInstallerConan(ConanFile):
 
     def build_vs(self):
         with tools.chdir('sources'):
-            vcvars = tools.vcvars_command(self.settings, compiler_version=15, arch=str(self.settings.arch_build))
+            vcvars = tools.vcvars_command(self.settings, compiler_version=15, arch=str(self.settings.arch_build),
+                                          force=True)
             self.run('%s && nmake /f Mkfiles\\msvc.mak' % vcvars)
             # some libraries look for nasmw (e.g. libmp3lame)
             shutil.copy('nasm.exe', 'nasmw.exe')
