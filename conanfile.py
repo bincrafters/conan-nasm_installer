@@ -14,7 +14,7 @@ class NASMInstallerConan(ConanFile):
                   "and modularity"
     license = "http://repo.or.cz/nasm.git/blob/HEAD:/INSTALL"
     exports_sources = ["LICENSE"]
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os_build", "arch_build"
 
     def source(self):
         source_url = "http://www.nasm.us/pub/nasm/releasebuilds/%s/nasm-%s.tar.bz2" % (self.version, self.version)
@@ -24,7 +24,7 @@ class NASMInstallerConan(ConanFile):
 
     def build_vs(self):
         with tools.chdir('sources'):
-            vcvars = tools.vcvars_command(self.settings)
+            vcvars = tools.vcvars_command(self.settings, compiler_version=15, arch=str(self.settings.arch_build))
             self.run('%s && nmake /f Mkfiles\\msvc.mak' % vcvars)
             # some libraries look for nasmw (e.g. libmp3lame)
             shutil.copy('nasm.exe', 'nasmw.exe')
@@ -33,22 +33,20 @@ class NASMInstallerConan(ConanFile):
     def build_configure(self):
         with tools.chdir('sources'):
             args = ['--prefix=%s' % self.package_folder]
-            if self.settings.build_type == 'Debug':
-                args.append('--disable-optimization')
             env_build = AutoToolsBuildEnvironment(self)
             env_build.configure(args=args)
             env_build.make()
             env_build.make(args=['install'])
 
     def build(self):
-        if self.settings.compiler == 'Visual Studio':
+        if self.settings.os_build == 'Windows':
             self.build_vs()
         else:
             self.build_configure()
 
     def package(self):
         self.copy(pattern="LICENSE", src='sources')
-        if self.settings.compiler == 'Visual Studio':
+        if self.settings.os_build == 'Windows':
             self.copy(pattern='*.exe', src='sources', dst='bin', keep_path=False)
 
     def package_info(self):
