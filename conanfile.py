@@ -14,7 +14,7 @@ class NASMInstallerConan(ConanFile):
                   "and modularity"
     license = "http://repo.or.cz/nasm.git/blob/HEAD:/INSTALL"
     exports_sources = ["LICENSE"]
-    settings = "os_build", "arch_build"
+    settings = "os_build", "arch_build", "compiler"
 
     def source(self):
         source_url = "http://www.nasm.us/pub/nasm/releasebuilds/%s/nasm-%s.tar.bz2" % (self.version, self.version)
@@ -24,12 +24,11 @@ class NASMInstallerConan(ConanFile):
 
     def build_vs(self):
         with tools.chdir('sources'):
-            vcvars = tools.vcvars_command(self.settings, compiler_version=15, arch=str(self.settings.arch_build),
-                                          force=True)
-            self.run('%s && nmake /f Mkfiles\\msvc.mak' % vcvars)
-            # some libraries look for nasmw (e.g. libmp3lame)
-            shutil.copy('nasm.exe', 'nasmw.exe')
-            shutil.copy('ndisasm.exe', 'ndisasmw.exe')
+            with tools.vcvars(self.settings, arch=str(self.settings.arch_build), force=True):
+                self.run('nmake /f Mkfiles\\msvc.mak')
+                # some libraries look for nasmw (e.g. libmp3lame)
+                shutil.copy('nasm.exe', 'nasmw.exe')
+                shutil.copy('ndisasm.exe', 'ndisasmw.exe')
 
     def build_configure(self):
         with tools.chdir('sources'):
@@ -52,3 +51,6 @@ class NASMInstallerConan(ConanFile):
 
     def package_info(self):
         self.env_info.PATH.append(os.path.join(self.package_folder, 'bin'))
+
+    def package_id(self):
+        self.info.settings.compiler = 'Any'
