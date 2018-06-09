@@ -16,6 +16,10 @@ class NASMInstallerConan(ConanFile):
     exports_sources = ["LICENSE"]
     settings = "os_build", "arch_build", "compiler"
 
+    def requirements(self):
+        if self.settings.os_build == 'Linux':
+            self.requires.add('glibc_version_header/0.1@bincrafters/stable')
+
     def source(self):
         source_url = "http://www.nasm.us/pub/nasm/releasebuilds/%s/nasm-%s.tar.bz2" % (self.version, self.version)
         tools.get(source_url)
