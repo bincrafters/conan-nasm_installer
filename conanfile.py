@@ -15,23 +15,28 @@ class NASMInstallerConan(ConanFile):
     license = "http://repo.or.cz/nasm.git/blob/HEAD:/INSTALL"
     exports_sources = ["LICENSE"]
     settings = "os_build", "arch_build", "compiler"
+    _source_subfolder = "sources"
+
+    def build_requirements(self):
+        if self.settings.os_build == 'Linux':
+            self.build_requires('glibc_version_header/0.1@bincrafters/stable')
 
     def source(self):
         source_url = "http://www.nasm.us/pub/nasm/releasebuilds/%s/nasm-%s.tar.bz2" % (self.version, self.version)
         tools.get(source_url)
         extracted_dir = "nasm-" + self.version
-        os.rename(extracted_dir, "sources")
+        os.rename(extracted_dir, self._source_subfolder)
 
-    def build_vs(self):
-        with tools.chdir('sources'):
+    def _build_vs(self):
+        with tools.chdir(self._source_subfolder):
             with tools.vcvars(self.settings, arch=str(self.settings.arch_build), force=True):
                 self.run('nmake /f Mkfiles\\msvc.mak')
                 # some libraries look for nasmw (e.g. libmp3lame)
                 shutil.copy('nasm.exe', 'nasmw.exe')
                 shutil.copy('ndisasm.exe', 'ndisasmw.exe')
 
-    def build_configure(self):
-        with tools.chdir('sources'):
+    def _build_configure(self):
+        with tools.chdir(self._source_subfolder):
             cc = os.environ.get('CC', 'gcc')
             cxx = os.environ.get('CXX', 'g++')
             if self.settings.arch_build == 'x86':
@@ -41,20 +46,19 @@ class NASMInstallerConan(ConanFile):
                 cc = cc + ' -m64'
                 cxx = cxx + ' -m64'
             with tools.environment_append({'CC': cc, 'CXX': cxx}):
-                args = ['--prefix=%s' % self.package_folder]
                 env_build = AutoToolsBuildEnvironment(self)
-                env_build.configure(args=args)
+                env_build.configure()
                 env_build.make()
-                env_build.make(args=['install'])
+                env_build.install()
 
     def build(self):
         if self.settings.os_build == 'Windows':
-            self.build_vs()
+            self._build_vs()
         else:
-            self.build_configure()
+            self._build_configure()
 
     def package(self):
-        self.copy(pattern="LICENSE", src='sources')
+        self.copy(pattern="LICENSE", src='sources', dst="licenses")
         if self.settings.os_build == 'Windows':
             self.copy(pattern='*.exe', src='sources', dst='bin', keep_path=False)
 
