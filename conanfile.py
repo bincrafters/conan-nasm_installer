@@ -62,4 +62,4 @@ class NASMInstallerConan(ConanFile):
         self.env_info.PATH.append(os.path.join(self.package_folder, 'bin'))
 
     def package_id(self):
-        self.info.settings.compiler = 'Any'
+        del self.info.settings.compiler
