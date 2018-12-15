@@ -36,16 +36,17 @@ class NASMInstallerConan(ConanFile):
             cc = os.environ.get('CC', 'gcc')
             cxx = os.environ.get('CXX', 'g++')
             if self.settings.arch_build == 'x86':
-                cc = cc + ' -m32'
-                cxx = cxx + ' -m32'
+                cc += ' -m32'
+                cxx += ' -m32'
             elif self.settings.arch_build == 'x86_64':
-                cc = cc + ' -m64'
-                cxx = cxx + ' -m64'
-            with tools.environment_append({'CC': cc, 'CXX': cxx}):
-                env_build = AutoToolsBuildEnvironment(self)
-                env_build.configure()
-                env_build.make()
-                env_build.install()
+                cc += ' -m64'
+                cxx += ' -m64'
+            env_build = AutoToolsBuildEnvironment(self)
+            env_build_vars = env_build.vars
+            env_build_vars.update({'CC': cc, 'CXX': cxx})
+            env_build.configure(vars=env_build_vars)
+            env_build.make(vars=env_build_vars)
+            env_build.install(vars=env_build_vars)
 
     def build(self):
         if self.settings.os_build == 'Windows':
