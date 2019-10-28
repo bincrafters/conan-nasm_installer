@@ -1,5 +1,5 @@
 [![Download](https://api.bintray.com/packages/bincrafters/public-conan/nasm_installer%3Abincrafters/images/download.svg) ](https://bintray.com/bincrafters/public-conan/nasm_installer%3Abincrafters/_latestVersion)
-[![Build Status](https://travis-ci.org/bincrafters/conan-nasm_installer.svg?branch=testing%2F2.13.02)](https://travis-ci.org/bincrafters/conan-nasm_installer)
+[![Build Status](https://travis-ci.com/bincrafters/conan-nasm_installer.svg?branch=testing%2F2.13.02)](https://travis-ci.com/bincrafters/conan-nasm_installer)
 [![Build status](https://ci.appveyor.com/api/projects/status/github/bincrafters/conan-nasm_installer?branch=testing%2F2.13.02&svg=true)](https://ci.appveyor.com/project/bincrafters/conan-nasm_installer)
 
 [Conan.io](https://conan.io) package recipe for *nasm_installer*.
